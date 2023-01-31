@@ -8,7 +8,10 @@ template<uint32_t Size>
 class Flag
 {
   static_assert(Size % 32);
-  const uint32_t arraySize = Size / 32;
+public:
+  static constexpr uint32_t arraySize = Size / 32;
+
+private:
   uint64_t data[arraySize];
 
 public:
@@ -16,10 +19,15 @@ public:
   {
     data[0] = flag;
   }
+  Flag(uint64_t flags[arraySize])
+  {
+    for(uint32_t i = 0; i < arraySize; ++i)
+      data[i] = flags[i];
+  }
   Flag(const Flag& flag)
   {
-    for(uint32_t i; i < arraySize; ++i)
-    data[0] = flag;
+    for(uint32_t i = 0; i < arraySize; ++i)
+      data[i] = flag.data[i];
   }
   void SetBit(uint32_t bit)
   {
@@ -39,32 +47,37 @@ public:
       data[i] = 0;
   }
 
+  operator bool()
+  {
+    for (uint32_t i = 0; i < arraySize; ++i)
+      if (data[i])
+        return true;
+    return false;
+  }
+
+
+  // Sets selected bit
   Flag& operator|=(uint32_t bit)
   {
-    assert(bit < size);
+    assert(bit < Size);
     SetBit(bit);
     return *this;
   }
-  Flag& operator|=(uint64_t flag)
-  {
-    return (*this) |= Flag(flag);
-  }
+  // bitwise OR 2 flags
   Flag& operator|=(const Flag& flag)
   {
     for(uint32_t i = 0; i < arraySize; ++i)
       data[i] |= flag.data[i];
     return *this;
   }
-  
+
+  // reset all bits and bitwise AND selected bit
   Flag& operator&=(uint32_t bit)
   {
     Reset();
     SetBit(bit);
   }
-  Flag& operator&=(uint64_t flag)
-  {
-    return (*this) &= Flag(flag);
-  }
+  // bitwise AND 2 flags
   Flag& operator&=(const Flag& flag)
   {
     for (uint32_t i = 0; i < arraySize; ++i)
@@ -72,14 +85,12 @@ public:
     return *this;
   }
 
+  // Toggles selected bit
   Flag& operator^=(uint32_t bit)
   {
     FlipBit(bit);
   }
-  Flag& operator^=(uint64_t flag)
-  {
-    return (*this) ^= Flag(flag);
-  }
+  // bitwise XOR 2 flags
   Flag& operator^=(const Flag& flag)
   {
     for (uint32_t i = 0; i < arraySize; ++i)
@@ -87,11 +98,20 @@ public:
     return *this;
   }
 
-  bool operator| (const Flag& flag) const
+
+  Flag operator| (const Flag& flag) const
   {
-    for (uint32_t i = 0; i < arraySize; ++i)
-      if (data[i] |= flag.data[i])
-        return true;
-    return false;
+    Flag temp(*this);
+    return temp |= flag;
+  }
+  Flag operator& (const Flag& flag) const
+  {
+    Flag temp(*this);
+    return temp &= flag;
+  }
+  Flag operator^ (const Flag& flag) const
+  {
+    Flag temp(*this);
+    return temp ^= flag;
   }
 };
