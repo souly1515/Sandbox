@@ -8,8 +8,16 @@ void API_CALL(T t, Args... args)
 #ifdef NDEBUG
   t(args...);
 #else
-  if (t(args...) != VK_SUCCESS) {
-    throw std::runtime_error("failed to create instance!");
+  if constexpr (std::is_same<decltype(t(args...)), VkResult>::value)
+  {
+    VkResult res = t(args...);
+    if (res != VK_SUCCESS) {
+      throw std::runtime_error("API error" + res);
+    }
+  }
+  else
+  {
+    t(args...);
   }
 #endif
 }

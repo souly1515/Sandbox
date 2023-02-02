@@ -47,6 +47,14 @@ void Log(const char* t, uint32_t logLevel, [[maybe_unused]] Args... args)
 
 }
 
+#ifdef NDEBUG
+#define DEBUG_ONLY(expression)\
+(void)(0);
+#else
+#define DEBUG_ONLY(expression)\
+expression
+#endif
+
 template<typename... Args>
 void DebugLog(const char* t, Args... args)
 {

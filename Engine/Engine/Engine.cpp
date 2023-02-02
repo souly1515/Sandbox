@@ -14,6 +14,8 @@ int Engine::MainLoop()
     pm.HandleIO();
   }
 
+  CleanUp();
+
   return m_returnValue;
 }
 
@@ -28,11 +30,17 @@ void Engine::Init()
   GraphicEngine::CreateInstance();
 
   PlatformManager::GetInstance().Init();
+
+  GraphicEngine::GetInstance().InitLayerExtInfo();
+
+  // probably add all additional layers and extensions here
+
   GraphicEngine::GetInstance().Init();
 }
 
 void Engine::CleanUp()
 {
+  GraphicEngine::GetInstance().Cleanup();
   PlatformManager::GetInstance().CleanUp();
 }
 
