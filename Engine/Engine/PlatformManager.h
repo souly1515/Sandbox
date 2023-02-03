@@ -15,4 +15,9 @@ public:
   bool CheckExit();
 
   void HandleIO();
+
+  GLFWwindow* GetWindow()
+  {
+    return m_window;
+  }
 };

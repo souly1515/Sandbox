@@ -65,6 +65,7 @@ void GraphicEngine::InitLayerExtInfo()
     m_availLayers.resize(layerCount);
     vkEnumerateInstanceLayerProperties(&layerCount, m_availLayers.data());
   }
+#ifdef DEBUG
   Log("available extensions:\n", Verbose);
 
   for (const auto& extension : m_availExtensions)
@@ -72,18 +73,12 @@ void GraphicEngine::InitLayerExtInfo()
     Log("\t%s\n", Verbose, extension.extensionName);
   }
 
-  uint32_t layerCount = 0;
-  vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-  std::vector<VkLayerProperties> layers(layerCount);
-  vkEnumerateInstanceLayerProperties(&layerCount, layers.data());
-
   Log("available Layers:\n", Verbose);
-  Log("layer count %d", Verbose, layerCount);
-  for (const auto& layer : layers)
+  for (const auto& layer : m_availLayers)
   {
     Log("\t%s\n", Verbose, layer.layerName);
   }
-
+#endif
   DEBUG_ONLY(m_layerExtInitialised = true);
 }
 
@@ -165,6 +160,8 @@ void GraphicEngine::Init()
 #ifndef NDEBUG
   SetupDebugMessenger();
 #endif
+
+  m_device.Init(m_vkInstance);
 }
 
 void GraphicEngine::Cleanup()

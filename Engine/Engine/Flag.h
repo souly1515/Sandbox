@@ -4,10 +4,10 @@
 
 const uint64_t Mask_64Bit = 0xFFFFFFFF;
 
-template<uint32_t Size>
+template<uint32_t Size = 32>
 class Flag
 {
-  static_assert(Size % 32);
+  static_assert(!(Size % 32));
 public:
   static constexpr uint32_t arraySize = Size / 32;
 
@@ -15,7 +15,7 @@ private:
   uint64_t data[arraySize];
 
 public:
-  Flag(uint64_t flag)
+  Flag(uint64_t flag = 0)
   {
     data[0] = flag;
   }

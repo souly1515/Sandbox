@@ -34,6 +34,12 @@
     <ClInclude Include="Engine\Flag.h">
       <Filter>Engine</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\Device.h">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\Surface.h">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
@@ -47,6 +53,12 @@
     </ClCompile>
     <ClCompile Include="Engine\Flag.cpp">
       <Filter>Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\Device.cpp">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\Surface.cpp">
+      <Filter>Graphics\GraphicCore</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

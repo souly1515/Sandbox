@@ -98,7 +98,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions);DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>Includes/pch.h</PrecompiledHeaderFile>
@@ -150,7 +150,7 @@
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions);DEBUG</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>Includes/pch.h</PrecompiledHeaderFile>
@@ -202,15 +202,19 @@
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Flag.h" />
     <ClInclude Include="Engine\PlatformManager.h" />
+    <ClInclude Include="Graphics\GraphicCore\Device.h" />
     <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />
+    <ClInclude Include="Graphics\GraphicCore\Surface.h" />
     <ClInclude Include="Includes\Defines.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Engine\Engine.cpp" />
     <ClCompile Include="Engine\Flag.cpp" />
     <ClCompile Include="Engine\PlatformManager.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\Device.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\Surface.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

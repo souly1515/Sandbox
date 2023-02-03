@@ -1,6 +1,8 @@
 #pragma once
 #include "Includes/Defines.h"
 #include "vulkan/vulkan.h"
+#include "Device.h"
+#include "Surface.h"
 
 #include <vector>
 
@@ -33,6 +35,10 @@ class GraphicEngine
 
   std::vector<VkExtensionProperties> m_availExtensions;
   std::vector<VkLayerProperties>     m_availLayers;
+  VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+
+  Device m_device;
+  Surface m_surface;
 public:
   void InitLayerExtInfo();
   bool IsLayerSupported(const char* layerName);
