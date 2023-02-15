@@ -60,7 +60,11 @@ void Device::Init(VkInstance vkInstance, const Surface& surface)
   VkDeviceCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
   createInfo.pQueueCreateInfos = queueCreateInfos.data();
-  createInfo.queueCreateInfoCount = queueCreateInfos.size();
+  createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
+
+  auto deviceExtensions = PrepareExtensions(m_physicalDevice);
+  createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
+  createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
   createInfo.pEnabledFeatures = &deviceFeatures;
 
@@ -71,13 +75,19 @@ void Device::Init(VkInstance vkInstance, const Surface& surface)
   API_CALL(vkGetDeviceQueue, m_device, queueFamilies.computeFamily.value(), 0, &m_computeQueue);
 }
 
+void Device::RegisterExtensions(const std::vector<const char*>& requiredExtensions, const std::vector<const char*>& optionalExtensions)
+{
+  m_requiredExtensions = requiredExtensions;
+  m_optionalExtensions = optionalExtensions;
+}
+
 void Device::CleanUp()
 {
   API_CALL(vkDestroyDevice, m_device, nullptr);
 }
 
 
-Device::QueueFamilyIndices Device::GetQueueFamily(VkPhysicalDevice device, const Surface& surface)
+QueueFamilyIndices Device::GetQueueFamily(VkPhysicalDevice device, const Surface& surface)
 {
   QueueFamilyIndices indices;
   uint32_t queueFamilyCount = 0;
@@ -109,13 +119,19 @@ Device::QueueFamilyIndices Device::GetQueueFamily(VkPhysicalDevice device, const
   return indices;
 }
 
-int Device::ScoreDevice(VkPhysicalDevice device, const Surface& surface)
+int32_t Device::ScoreDevice(VkPhysicalDevice device, const Surface& surface)
 {
   VkPhysicalDeviceProperties deviceProperties;
   VkPhysicalDeviceFeatures deviceFeatures;
   vkGetPhysicalDeviceProperties(device, &deviceProperties);
   vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
-  int score = 0;
+  int32_t score = IsDeviceUsable(device);
+  if (score < 0)
+    return -1000;
+
+  SwapChainSupportDetails swapChainSupport = surface.QuerySwapChainSupport(device);
+  if (swapChainSupport.formats.empty() || swapChainSupport.presentModes.empty())
+    return -1000;
 
   // Discrete GPUs have a significant performance advantage
   if (deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU)
@@ -129,4 +145,76 @@ int Device::ScoreDevice(VkPhysicalDevice device, const Surface& surface)
     score = 0;
 
   return score;
+}
+
+int32_t Device::IsDeviceUsable(VkPhysicalDevice device)
+{
+  int32_t score = 0;
+  uint32_t extensionCount;
+  API_CALL(vkEnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, nullptr);
+
+  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+  API_CALL(vkEnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, availableExtensions.data());
+
+  for (auto& reqExt : m_requiredExtensions)
+  {
+    bool found = false;
+    for (auto& name : availableExtensions)
+    {
+      if (strcmp(name.extensionName, reqExt) == 0)
+      {
+        found = true;
+        break;
+      }
+    }
+    if (!found)
+    {
+      return -1000;
+    }
+  }
+
+  for (auto& reqExt : m_optionalExtensions)
+  {
+    bool found = false;
+    for (auto& name : availableExtensions)
+    {
+      if (strcmp(name.extensionName, reqExt) == 0)
+      {
+        found = true;
+        break;
+      }
+    }
+    if (found)
+    {
+      score += 10;
+    }
+  }
+
+
+
+  return score;
+}
+
+std::vector<const char*> Device::PrepareExtensions(VkPhysicalDevice device)
+{
+  std::vector<const char*> extensions = m_requiredExtensions;
+  
+  uint32_t extensionCount;
+  API_CALL(vkEnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, nullptr);
+
+  std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+  API_CALL(vkEnumerateDeviceExtensionProperties, device, nullptr, &extensionCount, availableExtensions.data());
+
+  for (auto& reqExt : m_optionalExtensions)
+  {
+    for (auto& ext : availableExtensions)
+    {
+      if (strcmp(ext.extensionName, reqExt) == 0)
+      {
+        extensions.push_back(ext.extensionName);
+        break;
+      }
+    }
+  }
+  return extensions;
 }

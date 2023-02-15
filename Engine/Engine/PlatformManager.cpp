@@ -11,6 +11,7 @@
 void PlatformManager::Init()
 {
   glfwInit();
+  m_size = { DISPLAY_WIDTH, DISPLAY_HEIGHT };
 
   glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   m_window = glfwCreateWindow(DISPLAY_WIDTH, DISPLAY_HEIGHT, "Vulkan window", nullptr, nullptr);

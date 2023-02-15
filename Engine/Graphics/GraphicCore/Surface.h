@@ -5,6 +5,12 @@
 #include "Includes/Defines.h"
 #include "GraphicDefines.hpp"
 
+struct SwapChainSupportDetails {
+  VkSurfaceCapabilitiesKHR capabilities;
+  std::vector<VkSurfaceFormatKHR> formats;
+  std::vector<VkPresentModeKHR> presentModes;
+};
+
 class Surface
 {
   VkSurfaceKHR m_surface = VK_NULL_HANDLE;
@@ -16,4 +22,6 @@ public:
   }
   void Init(VkInstance instance);
   void Cleanup();
+  
+  SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device) const;
 };

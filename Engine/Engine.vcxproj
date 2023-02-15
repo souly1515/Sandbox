@@ -206,6 +206,7 @@
     <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />
     <ClInclude Include="Graphics\GraphicCore\Surface.h" />
+    <ClInclude Include="Graphics\GraphicCore\Swapchain.h" />
     <ClInclude Include="Includes\Defines.h" />
   </ItemGroup>
   <ItemGroup>
@@ -215,6 +216,7 @@
     <ClCompile Include="Graphics\GraphicCore\Device.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Surface.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\Swapchain.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

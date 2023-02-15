@@ -2,6 +2,7 @@
 #include "GLFW/glfw3.h"
 #include "GraphicDefines.hpp"
 #include "Includes/Defines.h"
+#include "Engine/PlatformManager.h"
 
 #include <vector>
 
@@ -24,20 +25,56 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
   }
 }
 
+GraphicEngine::GraphicEngine() : 
+  m_requiredVulkanExtensions{
+    },
+  m_requiredLayers{
+    },
+  m_optionalVulkanExtensions{
+    },
+  m_optionalLayers{
+    },
+  m_requiredDeviceExtensions{
+     VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    },
+  m_optionalDeviceExtensions{
+    }
+{
+#ifdef DEBUG
+  m_requiredLayers.push_back("VK_LAYER_KHRONOS_validation");
+  m_requiredVulkanExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+}
+
 VKAPI_ATTR VkBool32 VKAPI_CALL GraphicEngine::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
 {
-  UNUSED_PARAM(messageSeverity);
   UNUSED_PARAM(messageType);
   UNUSED_PARAM(pUserData);
-  Log("validation layer: %s\n", Debug,pCallbackData->pMessage);
+
+  switch (messageSeverity)
+  {
+  case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+    return VK_FALSE;
+  // TMI
+  //  Log("Vulkan Verbose: %s\n", Debug, pCallbackData->pMessage);
+  //  break;
+  case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+    Log("Vulkan Info : %s\n", Debug, pCallbackData->pMessage);
+    break;
+  case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+    Log("Vulkan Warning: %s\n", Debug, pCallbackData->pMessage);
+    break;
+  case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+    Log("Vulkan Error: %s\n", Debug, pCallbackData->pMessage);
+    break;
+  default:
+    Log("Vulkan Unkown: %s\n", Debug, pCallbackData->pMessage);
+    break;
+  }
 
   return VK_FALSE;
 }
-void GraphicEngine::InitValidation()
-{
-  AddLayer("VK_LAYER_KHRONOS_validation", true);
-  AddExtension(VK_EXT_DEBUG_UTILS_EXTENSION_NAME, true);
-}
+
 void GraphicEngine::SetupDebugMessenger()
 {
   VkDebugUtilsMessengerCreateInfoEXT createInfo{};
@@ -146,9 +183,14 @@ void GraphicEngine::Init()
 
   m_EnabledExtensions.insert(m_EnabledExtensions.end(),glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-#ifndef NDEBUG
-  InitValidation();
-#endif
+  for (const auto name : m_requiredVulkanExtensions)
+    AddExtension(name, true);
+  for (const auto name : m_requiredLayers)
+    AddLayer(name, true);
+  for (const auto name : m_optionalVulkanExtensions)
+    AddExtension(name);
+  for (const auto name : m_optionalLayers)
+    AddLayer(name);
 
   createInfo.enabledLayerCount       = static_cast<uint32_t>(m_EnabledLayers.size());
   createInfo.enabledExtensionCount   = static_cast<uint32_t>(m_EnabledExtensions.size());
@@ -160,8 +202,13 @@ void GraphicEngine::Init()
 #ifndef NDEBUG
   SetupDebugMessenger();
 #endif
-
-  m_device.Init(m_vkInstance);
+  m_surface.Init(m_vkInstance);
+  m_device.RegisterExtensions(m_requiredDeviceExtensions, m_optionalDeviceExtensions);
+  m_device.Init(m_vkInstance, m_surface);
+  {
+    VkSurfaceFormatKHR swapchainFormat = { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+    m_swapChain.Init( m_device, swapchainFormat, m_device.GetQueueFamily(m_device, m_surface), m_surface, PlatformManager::GetInstance().GetSize());
+  }
 }
 
 void GraphicEngine::Cleanup()
@@ -169,6 +216,9 @@ void GraphicEngine::Cleanup()
 #ifndef NDEBUG
     API_CALL(DestroyDebugUtilsMessengerEXT, m_vkInstance, m_debugMessenger, nullptr);
 #endif
+    m_swapChain.Cleanup();
+    m_device.CleanUp();
+    m_surface.Cleanup();
 
     API_CALL(vkDestroyInstance, m_vkInstance, nullptr);
 }

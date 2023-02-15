@@ -3,18 +3,20 @@
 #include "vulkan/vulkan.h"
 #include "Device.h"
 #include "Surface.h"
+#include "Swapchain.h"
 
 #include <vector>
 
 class GraphicEngine
 {
   DefaultSingleton(GraphicEngine);
-
-  VkInstance m_vkInstance;
+private:
+  GraphicEngine();
+  VkInstance m_vkInstance = VK_NULL_HANDLE;
 
 #ifndef NDEBUG
   
-  VkDebugUtilsMessengerEXT m_debugMessenger;
+  VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
 
   static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
@@ -22,13 +24,16 @@ class GraphicEngine
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
     void* pUserData);
 
-  const std::vector<const char*> validationLayers = {
-      "VK_LAYER_KHRONOS_validation"
-  };
-  void InitValidation();
   void SetupDebugMessenger();
   bool m_layerExtInitialised = false;
 #endif
+
+  std::vector<const char*> m_requiredVulkanExtensions;
+  std::vector<const char*> m_requiredLayers;
+  std::vector<const char*> m_optionalVulkanExtensions;
+  std::vector<const char*> m_optionalLayers;
+  std::vector<const char*> m_requiredDeviceExtensions;
+  std::vector<const char*> m_optionalDeviceExtensions;
 
   std::vector<const char*> m_EnabledExtensions;
   std::vector<const char*> m_EnabledLayers;
@@ -39,6 +44,7 @@ class GraphicEngine
 
   Device m_device;
   Surface m_surface;
+  Swapchain m_swapChain;
 public:
   void InitLayerExtInfo();
   bool IsLayerSupported(const char* layerName);
