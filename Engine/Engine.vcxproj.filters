@@ -43,6 +43,9 @@
     <ClInclude Include="Graphics\GraphicCore\Swapchain.h">
       <Filter>Graphics\GraphicCore</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\ImageView.h">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
@@ -64,6 +67,9 @@
       <Filter>Graphics\GraphicCore</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\GraphicCore\Swapchain.cpp">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\ImageView.cpp">
       <Filter>Graphics\GraphicCore</Filter>
     </ClCompile>
   </ItemGroup>

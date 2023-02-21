@@ -7,6 +7,7 @@
 
 #include "Surface.h"
 #include "Device.h"
+#include "ImageView.h"
 
 #include "glm/glm.hpp"
 
@@ -15,6 +16,7 @@ class Swapchain
   VkSwapchainKHR m_swapChain;
   Device* m_device = nullptr;
   std::vector<VkImage> m_swapChainImages;
+  std::vector<ImageView> m_swapChainImageViews;
   std::vector<VkSurfaceFormatKHR> m_availableFormats;
   std::vector<VkPresentModeKHR> m_availablePresentModes;
   bool IsFormatAvailable(VkSurfaceFormatKHR format);

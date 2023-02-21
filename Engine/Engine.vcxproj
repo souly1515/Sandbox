@@ -117,6 +117,14 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -145,6 +153,14 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -169,6 +185,14 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -197,6 +221,14 @@
     <Lib>
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>
+      </Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Engine.h" />
@@ -205,6 +237,7 @@
     <ClInclude Include="Graphics\GraphicCore\Device.h" />
     <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />
+    <ClInclude Include="Graphics\GraphicCore\ImageView.h" />
     <ClInclude Include="Graphics\GraphicCore\Surface.h" />
     <ClInclude Include="Graphics\GraphicCore\Swapchain.h" />
     <ClInclude Include="Includes\Defines.h" />
@@ -215,6 +248,7 @@
     <ClCompile Include="Engine\PlatformManager.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Device.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\ImageView.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Surface.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Swapchain.cpp" />
   </ItemGroup>

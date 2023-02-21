@@ -91,6 +91,13 @@ void Swapchain::Init(Device &device, VkSurfaceFormatKHR swapchainFormat, QueueFa
   API_CALL(vkGetSwapchainImagesKHR, *m_device, m_swapChain, &imageCount, nullptr);
   m_swapChainImages.resize(imageCount);
   API_CALL(vkGetSwapchainImagesKHR, *m_device, m_swapChain, &imageCount, m_swapChainImages.data());
+
+  m_swapChainImageViews.resize(m_swapChainImages.size());
+  
+  for (size_t i = 0; i < m_swapChainImages.size(); i++) 
+  {
+    m_swapChainImageViews[i].Init(m_swapChainImages[i], surfaceFormat.format, device);
+  }
 }
 
 VkExtent2D Swapchain::ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, glm::vec2 winSize) const

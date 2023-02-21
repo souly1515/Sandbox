@@ -1,0 +1,10 @@
+{
+  "FileVersion": 2,
+  "Id": "70d4d2eb-6bea-4789-960d-67b05ca7e151",
+  "Items": [
+    {
+      "Id": "433c1af5-c4ec-4782-8891-f00a5675e635",
+      "Command": "../Shaders/ ../Bin/Build/Shaders/ ../Bin/Shaders/"
+    }
+  ]
+}
