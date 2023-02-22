@@ -15,6 +15,7 @@ size_t ShaderBuilder::CreateCompilationProcess(ShaderConfigInfoMapType::value_ty
   std::wstring exe = L"../External/vulkan/glslc.exe";
   std::wstring command = exe +
     L" -std=450 -fshader-stage=" + ShaderTypeToCharLong[int(input.first)] + L" " +
+    L"-fentry-point=" + input.second.entryPoint + L" " +
     intermediateFolder + shaderName + L".perm -o " +
     outputFolder + shaderName + L".spv";
   LPWSTR temp = new wchar_t[command.length()];
@@ -40,6 +41,7 @@ size_t ShaderBuilder::CreateCompilationProcess(ShaderConfigInfoMapType::value_ty
     printf("CreateProcess failed (%d).\n", GetLastError());
     throw(std::runtime_error("CreateProcess failed.\n"));
   }
+  m_processInfo.insert({ pi.hProcess, pi.hThread});
   return ret;
 }
 
@@ -174,11 +176,12 @@ size_t ShaderBuilder::CompilePermutations(
     std::wstring shaderPermutation = curPermutation + L"_" + input.second.defines[nextPermutation];
     defines.push_back(input.second.defines[nextPermutation]);
 
-    std::wstring generatedFilename = GeneratePermutation(input.second.shaderName, origFile, curPermutation, intermediateFolder, defines);
+    std::wstring generatedFilename = GeneratePermutation(input.second.shaderName, origFile, shaderPermutation, intermediateFolder, defines);
 
     ret |= CreateCompilationProcess(input, intermediateFolder, outputFolder, generatedFilename);
 
     ret |= CompilePermutations(input, origFile, intermediateFolder, outputFolder, shaderPermutation, nextPermutation + 1, defines);
+    defines.pop_back();
   }
   return ret;
 }
@@ -214,7 +217,9 @@ std::wstring ShaderBuilder::GeneratePermutation(std::wstring filename, const std
   std::wstringstream output;
 
   for (auto& define : defines)
+  {
     output << "#define " << define << "\n";
+  }
 
   output << origFile;
 
@@ -224,9 +229,34 @@ std::wstring ShaderBuilder::GeneratePermutation(std::wstring filename, const std
     outputFile.open(intermediateFolder + file_cstr + L".perm", std::ios_base::out | std::ios_base::trunc);
     assert(outputFile.is_open());
     outputFile << output.str();
+    outputFile.close();
   }
 
   return file_cstr;
+}
+
+size_t ShaderBuilder::WaitForAllProcessCompletion()
+{
+  size_t ret = 0;
+  for (auto itr : m_processInfo)
+  {
+    DWORD processRet = 0;
+    LPDWORD p_processRet = &processRet;
+    while (true)
+    {
+      GetExitCodeProcess(itr.first, p_processRet);
+      if (processRet != STILL_ACTIVE)
+      {
+        if (processRet)
+          ++ret;
+        CloseHandle(itr.first);
+        CloseHandle(itr.second);
+        break;
+      }
+    }
+  }
+  m_processInfo.clear();
+  return ret;
 }
 
 size_t ShaderBuilder::Compile(PathType path, std::wstring intermediatePath, std::wstring outputPath)
@@ -294,5 +324,6 @@ size_t ShaderBuilder::CompileAll(PathType path, PathType intermediatePath, PathT
       std::cout << "Error: " << e.what() << std::endl;
     }
   }
+  compileFailures = WaitForAllProcessCompletion();
   return compileFailures;
 }

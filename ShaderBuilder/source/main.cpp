@@ -35,7 +35,10 @@ int main(int argc, char* argv[])
   }
   size_t compileFailed = sb.CompileAll(temp[1], temp[2], temp[3]);
 
-  if(compileFailed)
+  if (compileFailed)
+  {
+    std::cout << compileFailed << " permutations failed\n";
     return 1;
+  }
   return 0;
 }

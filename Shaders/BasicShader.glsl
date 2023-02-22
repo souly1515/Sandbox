@@ -1,5 +1,14 @@
-//Shader:basicShader, VS_Entry: VS_main, PS_Entry: PS_main, Defines: Test, Check, Something, another
+//Shader:basicShader, VS_Entry: main, PS_Entry: main, Defines: Test, Check, Something, another
 
+//#ifdef Test
+//#ifdef Check
+//#ifdef Something
+//#ifdef another
+//a
+//#endif
+//#endif
+//#endif
+//#endif
 
 #ifdef VS
 layout(location = 0) out vec3 fragColor;

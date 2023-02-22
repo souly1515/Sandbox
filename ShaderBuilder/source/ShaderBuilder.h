@@ -4,6 +4,8 @@
 #include <filesystem>
 #include <sstream>
 #include <unordered_map>
+#include <Windows.h>
+#include <set>
 
 class ShaderBuilder
 {
@@ -52,7 +54,7 @@ private:
     std::wstring intermediateFolder,
     std::wstring outputFolder,
     std::wstring shaderName);
-
+  std::unordered_map<HANDLE, HANDLE> m_processInfo;
   void ProcessConfigInfo(std::wstringstream& ss, std::wstring shaderName, ShaderConfigInfoMapType& map);
   HeaderType IsHeader(std::wstring input);
 
@@ -76,6 +78,8 @@ private:
     std::wstring permutationName,
     std::wstring intermediateFolder, 
     std::vector<std::wstring> defines);
+
+  size_t WaitForAllProcessCompletion();
 
 public:
 
