@@ -118,8 +118,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe ../Shaders/ ../Bin/Build/Shaders/ ../Bin/Shaders/</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>
@@ -154,8 +153,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe ../Shaders/ ../Bin/Build/Shaders/ ../Bin/Shaders/</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>
@@ -186,8 +184,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe ../Shaders/ ../Bin/Build/Shaders/ ../Bin/Shaders/</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>
@@ -222,8 +219,7 @@
       <AdditionalLibraryDirectories>$(SolutionDir)External/</AdditionalLibraryDirectories>
     </Lib>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe ../Shaders/ ../Bin/Build/Shaders/ ../Bin/Shaders/</Command>
     </PreBuildEvent>
     <PreBuildEvent>
       <Message>
@@ -231,6 +227,7 @@
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\Include\Shared\ShaderIncludes.h" />
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Flag.h" />
     <ClInclude Include="Engine\PlatformManager.h" />
@@ -240,6 +237,7 @@
     <ClInclude Include="Graphics\GraphicCore\ImageView.h" />
     <ClInclude Include="Graphics\GraphicCore\Surface.h" />
     <ClInclude Include="Graphics\GraphicCore\Swapchain.h" />
+    <ClInclude Include="Graphics\ShaderManagement\ShaderManager.h" />
     <ClInclude Include="Includes\Defines.h" />
   </ItemGroup>
   <ItemGroup>
@@ -251,6 +249,7 @@
     <ClCompile Include="Graphics\GraphicCore\ImageView.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Surface.cpp" />
     <ClCompile Include="Graphics\GraphicCore\Swapchain.cpp" />
+    <ClCompile Include="Graphics\ShaderManagement\ShaderManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -3,7 +3,7 @@
 #include <filesystem>
 #include "ShaderBuilder.h"
 
-void GenerateDirectory(char* directory)
+void GenerateDirectory(const char* directory)
 {
   std::filesystem::path p = directory;
   std::filesystem::create_directory(p);
@@ -33,6 +33,8 @@ int main(int argc, char* argv[])
   {
     GenerateDirectory(argv[3]);
   }
+
+  GenerateDirectory("../autogen/");
   size_t compileFailed = sb.CompileAll(temp[1], temp[2], temp[3]);
 
   if (compileFailed)

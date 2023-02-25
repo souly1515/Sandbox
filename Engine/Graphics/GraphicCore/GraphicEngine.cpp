@@ -3,6 +3,7 @@
 #include "GraphicDefines.hpp"
 #include "Includes/Defines.h"
 #include "Engine/PlatformManager.h"
+#include "../ShaderManagement/ShaderManager.h"
 
 #include <vector>
 
@@ -209,6 +210,8 @@ void GraphicEngine::Init()
     VkSurfaceFormatKHR swapchainFormat = { VK_FORMAT_B8G8R8A8_SRGB, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
     m_swapChain.Init( m_device, swapchainFormat, m_device.GetQueueFamily(m_device, m_surface), m_surface, PlatformManager::GetInstance().GetSize());
   }
+  ShaderManager::CreateInstance();
+  ShaderManager::GetInstance().Init(m_device);
 }
 
 void GraphicEngine::Cleanup()

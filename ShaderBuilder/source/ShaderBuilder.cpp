@@ -8,8 +8,19 @@
 #include <cassert>
 #include <memory>
 #include <windows.h>
+#include <cwctype>
 
-size_t ShaderBuilder::CreateCompilationProcess(ShaderConfigInfoMapType::value_type input, std::wstring intermediateFolder, std::wstring outputFolder, std::wstring shaderName)
+std::string wstringToString(std::wstring str)
+{
+  std::string ret;
+  for (auto& c : str)
+  {
+    ret.push_back(char(c));
+  }
+  return ret;
+}
+
+size_t ShaderBuilder::CreateCompilationProcess(ShaderConfigInfoMapType::value_type& input, std::wstring intermediateFolder, std::wstring outputFolder, std::wstring shaderName)
 {
   // compile with generated file
   std::wstring exe = L"../External/vulkan/glslc.exe";
@@ -125,7 +136,9 @@ void ShaderBuilder::ProcessConfigInfo(std::wstringstream& ss, std::wstring shade
     mapInput.second.entryPoint = itr.second;
     mapInput.second.defines = defines;
     mapInput.second.shaderName = shaderName;
+    mapInput.second.shaderNameHash = hasher(std::wstring(ShaderTypeToChar[int(itr.first)]) + L"_" + shaderName) & ShaderKeyMask;
     map.insert(mapInput);
+    m_allShaderInfos.insert(mapInput);
   }
 }
 
@@ -162,7 +175,7 @@ ShaderBuilder::HeaderType ShaderBuilder::IsHeader(std::wstring input)
 }
 
 size_t ShaderBuilder::CompilePermutations(
-  ShaderConfigInfoMapType::value_type input,
+  ShaderConfigInfoMapType::value_type& input,
   const std::wstring origFile,
   std::wstring intermediateFolder,
   std::wstring outputFolder,
@@ -173,30 +186,29 @@ size_t ShaderBuilder::CompilePermutations(
   size_t ret = 0;
   for (; nextPermutation < input.second.defines.size(); ++nextPermutation)
   {
-    std::wstring shaderPermutation = curPermutation + L"_" + input.second.defines[nextPermutation];
     defines.push_back(input.second.defines[nextPermutation]);
 
-    std::wstring generatedFilename = GeneratePermutation(input.second.shaderName, origFile, shaderPermutation, intermediateFolder, defines);
+    std::wstring generatedFilename = GeneratePermutation(input, origFile, curPermutation, intermediateFolder, defines);
 
     ret |= CreateCompilationProcess(input, intermediateFolder, outputFolder, generatedFilename);
 
-    ret |= CompilePermutations(input, origFile, intermediateFolder, outputFolder, shaderPermutation, nextPermutation + 1, defines);
+    ret |= CompilePermutations(input, origFile, intermediateFolder, outputFolder, curPermutation, nextPermutation + 1, defines);
     defines.pop_back();
   }
   return ret;
 }
 
 size_t ShaderBuilder::CompilePermutations(
-  ShaderConfigInfoMapType::value_type input,
+  ShaderConfigInfoMapType::value_type& input,
   const std::wstring origFile,
   std::wstring intermediateFolder,
   std::wstring outputFolder)
 {
   std::vector<std::wstring> defines{ ShaderTypeToChar[int(input.first)] };
 
-  std::wstring curPermutation = input.second.shaderName + defines[0];
+  std::wstring curPermutation = std::wstring(ShaderTypeToChar[int(input.first)]) + L"_" + input.second.shaderName;
 
-  std::wstring generatedFilename = GeneratePermutation(input.second.shaderName, origFile, curPermutation, intermediateFolder, defines);
+  std::wstring generatedFilename = GeneratePermutation(input, origFile, curPermutation, intermediateFolder, defines);
 
   size_t ret = CreateCompilationProcess(input, intermediateFolder, outputFolder, generatedFilename);
 
@@ -206,13 +218,48 @@ size_t ShaderBuilder::CompilePermutations(
   return ret;
 }
 
-std::wstring ShaderBuilder::GeneratePermutation(std::wstring filename, const std::wstring origFile, std::wstring permutationName, std::wstring intermediateFolder, std::vector<std::wstring> defines)
+std::wstring ShaderBuilder::GeneratePermutation(ShaderConfigInfoMapType::value_type& input, const std::wstring origFile, std::wstring permutationName, std::wstring intermediateFolder, std::vector<std::wstring> defines)
 {
-  uint32_t hash = uint32_t(std::hash<std::wstring>{}(permutationName));
+  uint32_t hash = uint32_t(hasher(std::wstring(permutationName))) & ShaderKeyMask;
   wchar_t file_cstr[128];
+  
+  {
+    uint32_t curBit = 1 << ShaderDefineBitshift;
+    auto itr = input.second.defines.begin();
+    auto itr2 = defines.begin();
+    ++itr2;
+    if (itr2 != defines.end())
+    {
+      for (; itr != input.second.defines.end(); ++itr)
+      {
+        auto& define = *itr2;
+        if (define == *itr)
+        {
+          hash |= curBit;
+          ++itr2;
+        }
+        curBit <<= 1;
+        if (itr2 == defines.end())
+          break;
+      }
+    }
+  }
+#ifdef PRINT_INFO
+  std::cout << "generating permutation: " << hash << " with permutations: ";
+  for (auto& itr : defines)
+  {
+    std::wcout << itr;
+  }
+  std::cout << std::endl;
+#endif
+  if (m_createdPermutations.find(hash) != m_createdPermutations.end())
+  {
+    throw(std::runtime_error("permutation already compiled"));
+  }
+  m_createdPermutations.insert(hash);
 
   // shaderType_shaderName_shaderHash
-  swprintf_s<128>(file_cstr, L"%s_%s_%X", defines[0].c_str(), filename.c_str(), hash);
+  swprintf_s<128>(file_cstr, L"%s_%s_%08X", defines[0].c_str(), input.second.shaderName.c_str(), hash);
 
   std::wstringstream output;
 
@@ -259,6 +306,62 @@ size_t ShaderBuilder::WaitForAllProcessCompletion()
   return ret;
 }
 
+void ShaderBuilder::GenerateCPPHeaders()
+{
+  std::wfstream fs;
+  fs.open(L"../autogen/Shaders.h", std::ios_base::out | std::ios_base::trunc);
+
+  fs << "#pragma once\n\n";
+  fs << "#include <cstdint>\n";
+  fs << "#include <memory>\n";
+  fs << "#include <string>\n\n";
+
+  fs << "struct ShaderInfo {\n";
+  fs << "  virtual operator uint32_t() = 0;\n";
+  fs << "  virtual operator std::string() = 0;\n";
+  fs << "  virtual uint32_t GetNumDefines() = 0;\n";
+  fs << "  virtual uint32_t GetShaderStage() = 0;\n";
+  fs << "};\n\n";
+
+  for (auto& shaderInfo : m_allShaderInfos)
+  {
+    fs << "struct " << ShaderTypeToChar[uint32_t(shaderInfo.first)] << "_" << shaderInfo.second.shaderName << ": ShaderInfo {\n";
+    int i = 0;
+    fs << "  operator uint32_t() override {\n";
+    fs << "    return " << std::to_wstring(shaderInfo.second.shaderNameHash) << ";\n";
+    fs << "  }\n";
+    fs << "  operator std::string() override {\n";
+    fs << "    return \"" << (std::wstring(ShaderTypeToChar[uint32_t(shaderInfo.first)]) + L"_" + shaderInfo.second.shaderName) << "\";\n";
+    fs << "  }\n\n";
+    fs << "  uint32_t GetNumDefines() override {\n";
+    fs << "    return " << std::to_wstring(shaderInfo.second.defines.size()) << ";\n";
+    fs << "  }\n\n";
+    fs << "  uint32_t GetShaderStage() override {\n";
+    fs << "    return " << std::to_wstring(uint32_t(shaderInfo.first)) << ";\n";
+    fs << "  }\n\n";
+
+    fs << "  static constexpr uint32_t Hash = " << std::to_wstring(shaderInfo.second.shaderNameHash) << ";\n\n";
+    fs << "  static constexpr uint32_t NumFlags = " << std::to_wstring(shaderInfo.second.defines.size()) << ";\n\n";
+
+    fs << "  struct Key {\n";
+    for (auto define : shaderInfo.second.defines)
+    {
+      define[0] = std::towupper(define[0]);
+      fs << "    static const uint32_t " << define << " = 1 << " << std::to_wstring(i) << ";\n";
+      ++i;
+    }
+    fs << "  };\n";
+    fs << "};\n\n";
+  }
+
+  fs << "const std::shared_ptr<ShaderInfo> g_shaderInfos [] = {\n";
+  for (auto& shaderInfo : m_allShaderInfos)
+  {
+    fs << "  std::make_shared<" << ShaderTypeToChar[uint32_t(shaderInfo.first)] << "_" << shaderInfo.second.shaderName << ">(),\n";
+  }
+  fs << "};\n";
+}
+
 size_t ShaderBuilder::Compile(PathType path, std::wstring intermediatePath, std::wstring outputPath)
 {
   std::wfstream fs;
@@ -292,7 +395,12 @@ size_t ShaderBuilder::Compile(PathType path, std::wstring intermediatePath, std:
     if (temp2.back() == ',')
       temp2.pop_back();
     std::wstring shaderName = temp2;
-
+    if (!std::iswupper(shaderName[0]))
+    {
+      wchar_t errorMsg[256];
+      swprintf_s(errorMsg, 256, L"%s: Shader %s does not start with upper case", shaderName.c_str(), path);
+      throw std::runtime_error(wstringToString(errorMsg));
+    }
     ProcessConfigInfo(ss, shaderName, shaderInfo);
   }
 
@@ -324,6 +432,7 @@ size_t ShaderBuilder::CompileAll(PathType path, PathType intermediatePath, PathT
       std::cout << "Error: " << e.what() << std::endl;
     }
   }
+  GenerateCPPHeaders();
   compileFailures = WaitForAllProcessCompletion();
   return compileFailures;
 }

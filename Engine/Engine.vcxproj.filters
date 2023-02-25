@@ -14,6 +14,9 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="ShaderManagement">
+      <UniqueIdentifier>{da9a16d3-95d4-4463-97d9-b3e18a3e1c97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Includes\Defines.h">
@@ -46,6 +49,12 @@
     <ClInclude Include="Graphics\GraphicCore\ImageView.h">
       <Filter>Graphics\GraphicCore</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Shared\ShaderIncludes.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderManagement\ShaderManager.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
@@ -71,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\GraphicCore\ImageView.cpp">
       <Filter>Graphics\GraphicCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ShaderManagement\ShaderManager.cpp">
+      <Filter>ShaderManagement</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

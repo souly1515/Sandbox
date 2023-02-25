@@ -26,5 +26,8 @@
     <ClInclude Include="source\ShaderBuilder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Include\Shared\ShaderIncludes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

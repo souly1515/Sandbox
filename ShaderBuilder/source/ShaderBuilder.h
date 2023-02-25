@@ -3,9 +3,13 @@
 #include <string>
 #include <filesystem>
 #include <sstream>
+#include <map>
 #include <unordered_map>
+#include <unordered_set>
 #include <Windows.h>
 #include <set>
+
+#include "ShaderIncludes.h"
 
 class ShaderBuilder
 {
@@ -14,12 +18,6 @@ public:
   using BasePathType = std::filesystem::path::value_type;
 
 private:
-  enum class ShaderType
-  {
-    VS = 0,
-    PS = 1,
-    CS = 2,
-  };
   const wchar_t* ShaderTypeToChar[3] =
   {
     L"VS",
@@ -45,41 +43,53 @@ private:
   {
     std::wstring shaderName;
     std::wstring entryPoint;
+    uint32_t shaderNameHash;
     std::vector<std::wstring> defines;
   }; 
-  using ShaderConfigInfoMapType = std::unordered_multimap<ShaderType, ShaderConfigInfo>;
+  // need its iteration order to be guarenteed so not using unordered
+  using ShaderConfigInfoMapType = std::multimap<ShaderType, ShaderConfigInfo>;
+  ShaderConfigInfoMapType m_allShaderInfos;
+  // process Handle, thread handle
+  std::unordered_map<HANDLE, HANDLE> m_processInfo;
+  std::hash<std::wstring> hasher = {};
+
+  std::unordered_set<uint32_t> m_createdPermutations;
 
   size_t CreateCompilationProcess(
-    ShaderConfigInfoMapType::value_type input,
+    ShaderConfigInfoMapType::value_type& input,
     std::wstring intermediateFolder,
     std::wstring outputFolder,
     std::wstring shaderName);
-  std::unordered_map<HANDLE, HANDLE> m_processInfo;
+
   void ProcessConfigInfo(std::wstringstream& ss, std::wstring shaderName, ShaderConfigInfoMapType& map);
+
   HeaderType IsHeader(std::wstring input);
 
   size_t CompilePermutations(
-    ShaderConfigInfoMapType::value_type input, 
+    ShaderConfigInfoMapType::value_type& input, 
     const std::wstring origFile, 
     std::wstring intermediateFolder,
     std::wstring outputFolder,
     std::wstring curPermutation, 
     size_t nextPermutation,
     std::vector<std::wstring> defines);
+
   size_t CompilePermutations(
-    ShaderConfigInfoMapType::value_type input, 
+    ShaderConfigInfoMapType::value_type& input, 
     const std::wstring origFile, 
     std::wstring intermediateFolder,
     std::wstring outputFolder);
 
   std::wstring GeneratePermutation(
-    std::wstring filename, 
+    ShaderConfigInfoMapType::value_type& input,
     const std::wstring origFile,
     std::wstring permutationName,
     std::wstring intermediateFolder, 
     std::vector<std::wstring> defines);
 
   size_t WaitForAllProcessCompletion();
+
+  void GenerateCPPHeaders();
 
 public:
 

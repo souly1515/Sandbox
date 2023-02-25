@@ -1,4 +1,4 @@
-//Shader:basicShader, VS_Entry: main, PS_Entry: main, Defines: Test, Check, Something, another
+//Shader:BasicShader, VS_Entry: main, PS_Entry: main, Defines: Test, Check, Something, another
 
 //#ifdef Test
 //#ifdef Check
