@@ -1,5 +1,5 @@
 #include "ShaderManager.h"
-#include "../autogen/Shaders.h"
+#include "../autogen/ShaderData.h"
 #include "Includes/Defines.h"
 
 #include <fstream>
@@ -51,7 +51,7 @@ void ShaderManager::CreateShader(ShaderInfo& shaderName, uint32_t hash)
 
   try
   {
-    shader.Init(*m_device, reinterpret_cast<const uint32_t*>(buffer.data()), buffer.size());
+    shader.Init(*m_device, ShaderType(shaderName.GetShaderStage()), reinterpret_cast<const uint32_t*>(buffer.data()), buffer.size());
   }
   catch (...)
   {
@@ -67,7 +67,7 @@ void ShaderManager::Init(Device& device)
   {
     uint32_t baseHash = (*shaderInfo);
 
-    LoadShaderPerms(*shaderInfo, baseHash, shaderInfo->GetNumDefines());
+    LoadShaderPerms(*shaderInfo, shaderInfo->GetShaderStage(), baseHash, shaderInfo->GetNumDefines());
   }
 }
 
@@ -76,24 +76,7 @@ const Shader& ShaderManager::GetShader(ShaderKey key) const
   return m_shaderMap.at(key);
 }
 
-Shader::~Shader()
+void ShaderManager::CleanUp()
 {
-  if (m_shaderModule != VK_NULL_HANDLE)
-  {
-    vkDestroyShaderModule(*m_device, m_shaderModule, nullptr);
-  }
-}
-
-bool Shader::Init(Device& device, const uint32_t* shaderCode, size_t size)
-{
-  m_device = &device;
-
-  VkShaderModuleCreateInfo createInfo{};
-  createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-  createInfo.codeSize = size;
-  createInfo.pCode = shaderCode;
-
-  API_CALL(vkCreateShaderModule, device, &createInfo, nullptr, &m_shaderModule);
-
-  return true;
+  m_shaderMap.clear();
 }

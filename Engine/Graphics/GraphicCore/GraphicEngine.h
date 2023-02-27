@@ -52,7 +52,9 @@ public:
   void AddLayer(const char* layerName, bool required = false);
   void AddExtension(const char* extensionName, bool required = false);
 
-  void Init();
+  void SetRT();
+  //void ClearRT(uint32_t rtIndex, 
 
+  void Init();
   void Cleanup();
 };

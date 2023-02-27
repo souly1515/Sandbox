@@ -1,5 +1,10 @@
 #include "ImageView.h"
 
+VkFormat ImageView::GetFormat()
+{
+  return m_format;
+}
+
 ImageView::~ImageView()
 {
   vkDestroyImageView(m_device, m_imageView, nullptr);
@@ -19,7 +24,7 @@ void ImageView::Init(VkImage image, VkFormat format, Device& device)
   createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
   createInfo.image = image;
   createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-  createInfo.format = format;
+  m_format = createInfo.format = format;
   
   createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
   createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
@@ -33,4 +38,9 @@ void ImageView::Init(VkImage image, VkFormat format, Device& device)
   createInfo.subresourceRange.layerCount = 1;
 
   API_CALL(vkCreateImageView, m_device, &createInfo, nullptr, &m_imageView);
+}
+
+VkFormat Image::GetFormat()
+{
+  return m_format;
 }

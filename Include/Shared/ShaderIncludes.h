@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include <string>
 
 using ShaderKey = uint32_t;
 const uint32_t ShaderDefineBitshift = 16;
@@ -28,3 +29,10 @@ inline ShaderKey CombineShaderKey(ShaderKey mainKey, ShaderKey defineKey)
   return mainKey | (defineKey << ShaderDefineBitshift);
 }
 
+
+struct ShaderInfo {
+  virtual operator uint32_t() = 0;
+  virtual operator std::string() = 0;
+  virtual uint32_t GetNumDefines() = 0;
+  virtual uint32_t GetShaderStage() = 0;
+};

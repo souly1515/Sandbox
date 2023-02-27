@@ -4,6 +4,7 @@
 #include "Includes/Defines.h"
 #include "Engine/PlatformManager.h"
 #include "../ShaderManagement/ShaderManager.h"
+#include "PipelineStateManager.h"
 
 #include <vector>
 
@@ -212,6 +213,22 @@ void GraphicEngine::Init()
   }
   ShaderManager::CreateInstance();
   ShaderManager::GetInstance().Init(m_device);
+  PipelineStateManager::CreateInstance();
+  auto& psm = PipelineStateManager::GetInstance();
+  psm.Init(m_device);
+
+  // set up default RT blend state
+  {
+    RenderTargetBlendStates blendState;
+    blendState.blendEnabled  = true;
+    blendState.srcColorBlend = VK_BLEND_FACTOR_SRC_ALPHA;
+    blendState.dstColorBlend = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    blendState.colorBlendOp  = VK_BLEND_OP_ADD;
+    blendState.srcAlphaBlend = VK_BLEND_FACTOR_ONE;
+    blendState.dstAlphaBlend = VK_BLEND_FACTOR_ZERO;
+    blendState.alphaBlendOp  = VK_BLEND_OP_ADD;
+    psm.SetRTBlendState(blendState, 0);
+  }
 }
 
 void GraphicEngine::Cleanup()
@@ -222,6 +239,9 @@ void GraphicEngine::Cleanup()
     m_swapChain.Cleanup();
     m_device.CleanUp();
     m_surface.Cleanup();
+
+    ShaderManager::GetInstance().CleanUp();
+    PipelineStateManager::GetInstance().CleanUp();
 
     API_CALL(vkDestroyInstance, m_vkInstance, nullptr);
 }

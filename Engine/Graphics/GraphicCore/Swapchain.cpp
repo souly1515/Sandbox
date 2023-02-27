@@ -124,3 +124,8 @@ void Swapchain::Cleanup()
 {
   API_CALL(vkDestroySwapchainKHR, *m_device, m_swapChain, nullptr);
 }
+
+VkFormat Swapchain::GetSwapChainFormat()
+{
+  return m_swapChainImageViews[0].GetFormat();
+}

@@ -55,6 +55,12 @@
     <ClInclude Include="Graphics\ShaderManagement\ShaderManager.h">
       <Filter>ShaderManagement</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\PipelineStateManager.h">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderManagement\Shader.h">
+      <Filter>ShaderManagement</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
@@ -82,6 +88,12 @@
       <Filter>Graphics\GraphicCore</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ShaderManagement\ShaderManager.cpp">
+      <Filter>ShaderManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\PipelineStateManager.cpp">
+      <Filter>Graphics\GraphicCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ShaderManagement\Shader.cpp">
       <Filter>ShaderManagement</Filter>
     </ClCompile>
   </ItemGroup>

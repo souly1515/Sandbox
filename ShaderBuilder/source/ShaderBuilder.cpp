@@ -309,19 +309,13 @@ size_t ShaderBuilder::WaitForAllProcessCompletion()
 void ShaderBuilder::GenerateCPPHeaders()
 {
   std::wfstream fs;
-  fs.open(L"../autogen/Shaders.h", std::ios_base::out | std::ios_base::trunc);
+  fs.open(L"../autogen/ShaderData.h", std::ios_base::out | std::ios_base::trunc);
 
   fs << "#pragma once\n\n";
+  fs << "#include \"../Include/Shared/ShaderIncludes.h\"\n";
   fs << "#include <cstdint>\n";
   fs << "#include <memory>\n";
   fs << "#include <string>\n\n";
-
-  fs << "struct ShaderInfo {\n";
-  fs << "  virtual operator uint32_t() = 0;\n";
-  fs << "  virtual operator std::string() = 0;\n";
-  fs << "  virtual uint32_t GetNumDefines() = 0;\n";
-  fs << "  virtual uint32_t GetShaderStage() = 0;\n";
-  fs << "};\n\n";
 
   for (auto& shaderInfo : m_allShaderInfos)
   {

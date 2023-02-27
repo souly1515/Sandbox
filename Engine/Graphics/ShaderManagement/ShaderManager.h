@@ -1,21 +1,13 @@
 #pragma once
 
 #include "Shared/ShaderIncludes.h"
-#include "../autogen/Shaders.h"
+#include "../autogen/ShaderData.h"
 #include "Includes/Defines.h"
 #include "Graphics/GraphicCore/Device.h"
+#include "Shader.h"
 
 #include <unordered_map>
 #include "vulkan/vulkan.h"
-
-class Shader
-{
-  VkShaderModule m_shaderModule = VK_NULL_HANDLE;
-  Device* m_device;
-public:
-  ~Shader();
-  bool Init(Device& device, const uint32_t* shaderCode, size_t size);
-};
 
 class ShaderManager
 {
@@ -29,6 +21,7 @@ private:
   Device* m_device;
 public:
   void Init(Device& device);
+  void CleanUp();
   const Shader& GetShader(ShaderKey key) const;
   template<typename ShaderType>
   const Shader& GetShader(ShaderType, ShaderKey defineHash) const

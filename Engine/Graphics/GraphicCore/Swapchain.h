@@ -27,6 +27,7 @@ public:
     return m_swapChain;
   }
   void Init(Device &device, VkSurfaceFormatKHR swapchainFormat, QueueFamilyIndices queueFamily, Surface surface, glm::vec2 size);
+  VkFormat GetSwapChainFormat();
 
   VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, glm::vec2 winSize) const;
   void Cleanup();
