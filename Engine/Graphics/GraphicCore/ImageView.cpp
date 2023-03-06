@@ -1,5 +1,5 @@
 #include "ImageView.h"
-
+#include <iostream>
 VkFormat ImageView::GetFormat()
 {
   return m_format;
@@ -15,10 +15,17 @@ ImageView::operator VkImageView()
   assert(m_imageView != VK_NULL_HANDLE);
   return m_imageView;
 }
+RegisterResource(ImageView, ImageView);
+RegisterResource(Image, Image);
+
 
 void ImageView::Init(VkImage image, VkFormat format, Device& device)
 {
   m_device = device;
+  GetResourceType(ImageView, ImageView) temp;
+  GetResourceType(Image, Image) temp2;
+  std::cout << "testing uid_base - " << temp.resourceName <<" : " << temp.internalID << std::endl;
+  std::cout << "testing uid_base - " << temp2.resourceName <<" : " << temp2.internalID << std::endl;
 
   VkImageViewCreateInfo createInfo{};
   createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;

@@ -61,11 +61,12 @@ class PipelineStateManager
   DefaultSingleton(PipelineStateManager);
 private:
   std::unordered_map<uint64_t, Pipeline> m_activePipelines;
-  std::unordered_map<uint64_t, PipelineLayout> m_activePipelineLayout;
   std::unordered_map<uint64_t, RenderPass> m_activeRenderpass;
+  std::unordered_map<uint64_t, FrameBuffer> m_activeFrameBuffer;
+  std::unordered_map<uint64_t, PipelineLayout> m_activePipelineLayout;
+  std::optional<ImageView> m_RenderTargetImageView[8];
 
   Device* m_device;
-  std::optional<ImageView> m_RenderTargetImageView[8];
   // Pipeline layout variables
   VertexInputState m_vertexState;
   VkPrimitiveTopology m_topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -76,11 +77,12 @@ private:
   // renderpass variables
   std::optional<glm::vec4> m_clearValues[8];
 
-  PipelineLayout& CreatePipelineLayout(uint32_t hash);
-  Pipeline& CreatePipeline(uint32_t hash);
-  void FillPipelineCreateMiscInfo(VkGraphicsPipelineCreateInfo& pipelineInfo);
+  Pipeline&       CreatePipeline       (uint32_t hash);
+  RenderPass&     CreateRenderpass     (uint32_t hash);
+  FrameBuffer&    CreateFramebuffer    (uint32_t hash);
+  PipelineLayout& CreatePipelineLayout (uint32_t hash);
 
-  RenderPass& CreateRenderpass(uint32_t hash);
+  void FillPipelineCreateMiscInfo(VkGraphicsPipelineCreateInfo& pipelineInfo);
 
   PipelineLayout& GetPipelineLayout();
   
@@ -95,7 +97,7 @@ public:
 
   Pipeline& GetPipeline();
   RenderPass& GetRenderpass();
-  RenderPass& GetFrameBuffer();
+  FrameBuffer& GetFrameBuffer();
 
   void SetVertexInputState(VertexInputState state);
   void SetTopology(VkPrimitiveTopology topology);

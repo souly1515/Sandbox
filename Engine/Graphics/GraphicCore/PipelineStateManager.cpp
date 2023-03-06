@@ -218,6 +218,12 @@ RenderPass& PipelineStateManager::CreateRenderpass(uint32_t hash)
   return m_activeRenderpass.at(hash);
 }
 
+FrameBuffer& PipelineStateManager::CreateFramebuffer(uint32_t hash)
+{
+  UNUSED_PARAM(hash);
+  return m_activeFrameBuffer.at(hash);
+}
+
 PipelineLayout& PipelineStateManager::GetPipelineLayout()
 {
   uint32_t hash = 0;
@@ -275,6 +281,12 @@ RenderPass& PipelineStateManager::GetRenderpass()
     return (rp->second);
 
   return CreateRenderpass(hash);
+}
+
+FrameBuffer& PipelineStateManager::GetFrameBuffer()
+{
+  // TODO: insert return statement here
+  return m_activeFrameBuffer.at(0);
 }
 
 void PipelineStateManager::SetVertexInputState(VertexInputState state)

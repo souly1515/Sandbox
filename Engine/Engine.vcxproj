@@ -231,6 +231,8 @@
     <ClInclude Include="Engine\Engine.h" />
     <ClInclude Include="Engine\Flag.h" />
     <ClInclude Include="Engine\PlatformManager.h" />
+    <ClInclude Include="Engine\UID.h" />
+    <ClInclude Include="Engine\UID.hpp" />
     <ClInclude Include="Graphics\GraphicCore\Device.h" />
     <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />

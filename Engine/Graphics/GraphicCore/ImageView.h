@@ -6,6 +6,8 @@
 
 #include "Includes/Defines.h"
 #include "GraphicDefines.hpp"
+#include "Engine/UID.h"
+
 
 class Image
 {
@@ -19,6 +21,7 @@ public:
   // maybe put array level at somepoint for image array support
   void Init(VkFormat format, Device& device);
   VkFormat GetFormat();
+  uint32_t GetUID();
 };
 
 class ImageView
@@ -30,6 +33,8 @@ public:
   VkFormat GetFormat();
   ~ImageView();
   operator VkImageView();
+  uint32_t GetUID();
+
   // maybe put array level at somepoint for image array support
-  void Init(VkImage image, VkFormat format, Device& device); 
+  void Init(VkImage image, VkFormat format, Device& device);
 };

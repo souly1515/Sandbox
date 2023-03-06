@@ -61,6 +61,12 @@
     <ClInclude Include="Graphics\ShaderManagement\Shader.h">
       <Filter>ShaderManagement</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\UID.hpp">
+      <Filter>Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\UID.h">
+      <Filter>Engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
