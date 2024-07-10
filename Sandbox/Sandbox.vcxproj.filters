@@ -5,13 +5,129 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Includes">
-      <UniqueIdentifier>{84c67043-1d97-4713-abce-c75f4b0b8ca8}</UniqueIdentifier>
+    <Filter Include="Engine">
+      <UniqueIdentifier>{71c66f95-2526-4e24-99a5-1db773555d58}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Engine">
+      <UniqueIdentifier>{32f4aca9-2913-4882-b59d-b51aaec799bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{f5e517ee-08ff-464c-96c5-4fc28a948126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\GraphicsCore">
+      <UniqueIdentifier>{89061b3f-889e-4406-8b84-65068da90856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\ShaderManagement">
+      <UniqueIdentifier>{2b55483e-1a6b-4c5f-8c18-70f955c0016c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Include">
+      <UniqueIdentifier>{bc7de556-7552-4709-b2f2-c37aa0bed868}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="EntryPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Engine.cpp">
+      <Filter>Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Flag.cpp">
+      <Filter>Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\PlatformManager.cpp">
+      <Filter>Engine\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxDevice.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxImageView.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxPipelineStateManager.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxSurface.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxSwapchain.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ShaderManagement\GfxShader.cpp">
+      <Filter>Engine\Graphics\ShaderManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ShaderManagement\GfxShaderManager.cpp">
+      <Filter>Engine\Graphics\ShaderManagement</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxResourceManager.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxCommandPool.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxVertex.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxBuffer.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Includes\Defines.h">
+      <Filter>Engine\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Engine.h">
+      <Filter>Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Flag.h">
+      <Filter>Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\PlatformManager.h">
+      <Filter>Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\UID.h">
+      <Filter>Engine\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxDevice.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxImageView.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxPipelineStateManager.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxSurface.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxSwapchain.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderManagement\GfxShader.h">
+      <Filter>Engine\Graphics\ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ShaderManagement\GfxShaderManager.h">
+      <Filter>Engine\Graphics\ShaderManagement</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxResourceManager.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxCommandPool.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxVertex.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxBuffer.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

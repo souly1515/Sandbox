@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -149,17 +149,16 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)/Engine;$(SolutionDir)/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)/Engine;$(SolutionDir)/Include;$(SolutionDir)/autogen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Engine_$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Bin/Lib/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW/$(Platform)/$(Configuration)/glfw3.lib;vulkan/vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Bin/Lib/$(Platform);$(SolutionDir)External</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>"$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe" "$(SolutionDir)Shaders/" "$(SolutionDir)Bin/Build/Shaders/" "$(SolutionDir)Bin/Shaders/"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -173,23 +172,58 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <TreatWarningAsError>true</TreatWarningAsError>
       <LanguageStandard_C>Default</LanguageStandard_C>
-      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)/Engine;$(SolutionDir)/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)/Engine;$(SolutionDir)/Include;$(SolutionDir)/autogen;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Engine_$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Bin/Lib/$(Platform)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>GLFW/$(Platform)/$(Configuration)/glfw3.lib;vulkan/vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Bin/Lib/$(Platform);$(SolutionDir)External</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>"$(SolutionDir)Bin\exe\$(Platform)\ShaderBuilder.exe" "$(SolutionDir)Shaders/" "$(SolutionDir)Bin/Build/Shaders/" "$(SolutionDir)Bin/Shaders/"</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\Engine.cpp" />
+    <ClCompile Include="Engine\Flag.cpp" />
+    <ClCompile Include="Engine\PlatformManager.cpp" />
     <ClCompile Include="EntryPoint.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxBuffer.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxCommandPool.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxDevice.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxResourceManager.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxVertex.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxImageView.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxPipelineStateManager.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxSurface.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxSwapchain.cpp" />
+    <ClCompile Include="Graphics\ShaderManagement\GfxShader.cpp" />
+    <ClCompile Include="Graphics\ShaderManagement\GfxShaderManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Engine\Engine.h" />
+    <ClInclude Include="Engine\Flag.h" />
+    <ClInclude Include="Engine\PlatformManager.h" />
+    <ClInclude Include="Engine\UID.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxBuffer.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxCommandPool.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxDevice.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxResourceManager.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxVertex.h" />
+    <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
+    <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxImageView.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxPipelineStateManager.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxSurface.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxSwapchain.h" />
+    <ClInclude Include="Graphics\ShaderManagement\GfxShader.h" />
+    <ClInclude Include="Graphics\ShaderManagement\GfxShaderManager.h" />
+    <ClInclude Include="Includes\Defines.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
