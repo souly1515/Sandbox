@@ -12,6 +12,8 @@
 #include "GfxResourceManager.h"
 
 #include "Graphics/ShaderManagement/GfxShader.h"
+#include "GfxUniformBuffer.hpp"
+#include "GfxStructuredBuffer.h"
 
 #include "glm/glm.hpp"
 #include <unordered_map>
@@ -19,6 +21,10 @@
 struct GfxPipelineLayout
 {
     VkPipelineLayout pipelineLayout;
+    operator VkPipelineLayout()
+    {
+        return pipelineLayout;
+    }
 };
 
 struct GfxPipeline
@@ -71,6 +77,7 @@ private:
     std::unordered_map<uint64_t, GfxPipelineLayout> m_activePipelineLayout;
     std::optional<GfxImageView> m_RenderTargetImageView[8];
 
+    std::hash<void*> m_hasher;
     GfxDevice* m_device;
     // Pipeline layout variables
     VertexInputState m_vertexState;
@@ -109,8 +116,10 @@ private:
 
     void FillPipelineCreateMiscInfo(VkGraphicsPipelineCreateInfo& pipelineInfo, PipelineMiscInfo& miscInfo);
 
-    GfxPipelineLayout& GetPipelineLayout();
-
+    GfxStructuredBuffer* m_structuredBuffer;
+    GfxUniformBufferBase* m_uniformBuffer[3];
+    VkDescriptorSetLayout m_setLayouts[4];
+    uint32_t m_setCount = 0;
 
     uint32_t shaderCount = 0;
     const GfxShader* m_computeShader = nullptr;
@@ -123,6 +132,7 @@ public:
 
     GfxPipeline& GetPipeline();
     GfxRenderState GetRenderState();
+    GfxPipelineLayout& GetPipelineLayout();
 
     void CommitStates(GfxCommandBuffer& commandBuffer);
 
@@ -142,6 +152,18 @@ public:
         m_RenderTargetImageView[rtIndex] = imageView;
         m_clearValues[rtIndex] = glm::vec4(0, 0, 0, 0);
     }
+
+    void BindDescriptor(GfxUniformBufferBase& uniformBuffer)
+    {
+        m_uniformBuffer[uniformBuffer.GetSetIndex() - uniformBuffer.c_uniformBufferOffset] = &uniformBuffer;
+        m_setLayouts[uniformBuffer.GetSetIndex()] = uniformBuffer.GetLayout();
+    }
+    void BindStructuredBuffer(GfxStructuredBuffer& structuredBuffer)
+    {
+        m_structuredBuffer = &structuredBuffer;
+        m_setLayouts[0] = structuredBuffer.GetLayout();
+    }
+
     void ResetRenderTargets();
 
     void SetShader(const GfxShader& shader);

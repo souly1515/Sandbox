@@ -194,8 +194,11 @@
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxBuffer.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxCommandPool.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxDescriptorPool.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxDevice.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxObjectManager.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxResourceManager.cpp" />
+    <ClCompile Include="Graphics\GraphicCore\GfxStructuredBuffer.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxVertex.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GraphicEngine.cpp" />
     <ClCompile Include="Graphics\GraphicCore\GfxImageView.cpp" />
@@ -212,8 +215,13 @@
     <ClInclude Include="Engine\UID.h" />
     <ClInclude Include="Graphics\GraphicCore\GfxBuffer.h" />
     <ClInclude Include="Graphics\GraphicCore\GfxCommandPool.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxDescriptorPool.h" />
     <ClInclude Include="Graphics\GraphicCore\GfxDevice.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxObject.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxObjectManager.h" />
     <ClInclude Include="Graphics\GraphicCore\GfxResourceManager.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxStructuredBuffer.h" />
+    <ClInclude Include="Graphics\GraphicCore\GfxUniformBuffer.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GfxVertex.h" />
     <ClInclude Include="Graphics\GraphicCore\GraphicDefines.hpp" />
     <ClInclude Include="Graphics\GraphicCore\GraphicEngine.h" />

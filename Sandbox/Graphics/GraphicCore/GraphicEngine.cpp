@@ -92,7 +92,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL GraphicEngine::debugCallback(VkDebugUtilsMessageS
         Log("Vulkan Unkown: %s\n", Debug, pCallbackData->pMessage);
         break;
     }
-
+    __debugbreak();
     return VK_FALSE;
 }
 
@@ -281,6 +281,15 @@ void GraphicEngine::Init()
     }
     GfxResourceManager::CreateInstance();
 
+    GfxDescriptorPool::CreateInstance();
+
+    GfxObjectManager::CreateInstance();
+
+    GfxDescriptorPool::GetInstance().InitPools(m_device);
+
+    m_objectManager = GfxObjectManager::GetInstancePtr();
+    m_objectManager->Init(m_device, MAX_FRAMES_IN_FLIGHT);
+
     InitSyncObjects();
 }
 
@@ -307,6 +316,7 @@ void GraphicEngine::BeginRenderPass()
     renderPassInfo.clearValueCount = i;
 
     API_CALL(vkCmdBeginRenderPass, m_currentCommmandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
 }
 
 void GraphicEngine::EndRenderPass()
@@ -316,11 +326,6 @@ void GraphicEngine::EndRenderPass()
 
 void GraphicEngine::CommitStates()
 {
-    if (!m_currentCommmandBuffer)
-    {
-        BeginRecordingGraphics();
-    }
-
     m_cachedPipelineManager->CommitStates(m_currentCommmandBuffer);
 
     VkExtent2D swapChainExtent = m_device.GetSwapChain().GetVkExtent();
@@ -454,6 +459,11 @@ void GraphicEngine::Flip()
     m_commandPool.FrameFlip();
 }
 
+uint32_t GraphicEngine::GetCurrentFrame()
+{
+    return m_currentFrameIndex;
+}
+
 const GfxCommandBuffer& GraphicEngine::GetCurrentCommandBuffer()
 {
     assert(m_currentCommmandBuffer);
@@ -464,6 +474,8 @@ void GraphicEngine::Cleanup()
 {
     vkDeviceWaitIdle(m_device);
     CleanupSyncObjects();
+    m_objectManager->CleanUp();
+    GfxDescriptorPool::GetInstance().CleanUp();
     m_commandPool.CleanUp();
     GfxShaderManager::GetInstance().CleanUp();
     GfxPipelineStateManager::GetInstance().CleanUp();

@@ -73,6 +73,15 @@
     <ClCompile Include="Graphics\GraphicCore\GfxBuffer.cpp">
       <Filter>Engine\Graphics\GraphicsCore</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxDescriptorPool.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxStructuredBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxObjectManager.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Includes\Defines.h">
@@ -127,6 +136,21 @@
       <Filter>Engine\Graphics\GraphicsCore</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\GraphicCore\GfxBuffer.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxUniformBuffer.hpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxDescriptorPool.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxStructuredBuffer.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxObjectManager.h">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GraphicCore\GfxObject.h">
       <Filter>Engine\Graphics\GraphicsCore</Filter>
     </ClInclude>
   </ItemGroup>

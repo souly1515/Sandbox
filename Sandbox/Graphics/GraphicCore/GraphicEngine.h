@@ -5,6 +5,8 @@
 #include "GfxSurface.h"
 #include "GfxPipelineStateManager.h"
 #include "GfxCommandPool.h"
+#include "GfxDescriptorPool.h"
+#include "GfxObjectManager.h"
 
 #include <vector>
 
@@ -20,7 +22,6 @@ private:
     GraphicEngine();
     VkInstance m_vkInstance = VK_NULL_HANDLE;
 
-    const int MAX_FRAMES_IN_FLIGHT = 2;
 
 #ifndef NDEBUG
 
@@ -57,7 +58,9 @@ private:
     GfxCommandBuffer m_currentCommmandBuffer;
 
     GfxPipelineStateManager* m_cachedPipelineManager;
+    GfxObjectManager* m_objectManager;
 
+    // probably need to organise this into something better
     std::vector<VkSemaphore> imageAvailableSemaphore;
     std::vector<VkSemaphore> renderFinishedSemaphore;
     std::vector<VkFence> inFlightFence;
@@ -67,6 +70,7 @@ private:
     void InitSyncObjects();
     void CleanupSyncObjects();
 public:
+    const int MAX_FRAMES_IN_FLIGHT = 2;
     void InitLayerExtInfo();
     bool IsLayerSupported(const char* layerName);
     bool IsExtensionSupported(const char* extensionName);
@@ -93,6 +97,7 @@ public:
     void Submit();
     void SubmitWithSync();
     void Flip();
+    uint32_t GetCurrentFrame();
 
     const GfxCommandBuffer& GetCurrentCommandBuffer();
 };

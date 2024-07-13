@@ -1,4 +1,5 @@
 #include "GfxPipelineStateManager.h"
+#include "GfxObjectManager.h"
 #include "GfxVertex.h"
 
 GfxPipelineLayout& GfxPipelineStateManager::CreatePipelineLayout(uint32_t hash)
@@ -7,8 +8,8 @@ GfxPipelineLayout& GfxPipelineStateManager::CreatePipelineLayout(uint32_t hash)
 
     VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
     pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipelineLayoutInfo.setLayoutCount = 0; // Optional
-    pipelineLayoutInfo.pSetLayouts = nullptr; // Optional
+    pipelineLayoutInfo.setLayoutCount = m_setCount;
+    pipelineLayoutInfo.pSetLayouts = m_setLayouts;
     pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
     pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
@@ -21,6 +22,14 @@ GfxPipelineLayout& GfxPipelineStateManager::CreatePipelineLayout(uint32_t hash)
 void GfxPipelineStateManager::CommitStates(GfxCommandBuffer& commandBuffer)
 {
     API_CALL(vkCmdBindPipeline, commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipeline());
+
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), 0, 1, (*m_structuredBuffer), 0, nullptr);
+    for (int i = 0; i < 3; ++i)
+    {
+        if (!m_uniformBuffer[i])
+            break;
+        vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, GetPipelineLayout(), i + 1, 1, *(m_uniformBuffer[i]), 0, nullptr);
+    }
 }
 
 GfxPipeline& GfxPipelineStateManager::CreatePipeline(uint32_t hash)
@@ -112,7 +121,7 @@ void GfxPipelineStateManager::FillPipelineCreateMiscInfo(VkGraphicsPipelineCreat
     pipelineMisc.rasterizer.polygonMode = m_polygonMode;
     pipelineMisc.rasterizer.lineWidth = 1.0f;
     pipelineMisc.rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-    pipelineMisc.rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+    pipelineMisc.rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     pipelineMisc.rasterizer.depthBiasEnable = VK_FALSE;
     pipelineMisc.rasterizer.depthBiasConstantFactor = 0.0f; // Optional
     pipelineMisc.rasterizer.depthBiasClamp = 0.0f; // Optional
@@ -259,6 +268,15 @@ GfxRenderState& GfxPipelineStateManager::CreateRenderState(uint32_t hash)
 GfxPipelineLayout& GfxPipelineStateManager::GetPipelineLayout()
 {
     uint32_t hash = 0;
+    m_setCount = 1;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        if (!m_uniformBuffer[i])
+            break;
+        hash |= m_hasher(m_setLayouts[i]);
+        ++m_setCount;
+    }
     auto pipeLayoutSearchRes = m_activePipelineLayout.find(hash);
 
     if (pipeLayoutSearchRes == m_activePipelineLayout.end())
@@ -296,13 +314,12 @@ void GfxPipelineStateManager::CleanUp()
 GfxPipeline& GfxPipelineStateManager::GetPipeline()
 {
     // TODO: hash pipeline layouts and pipelines
-    std::hash<void*> hasher;
     uint32_t renderPassHash = 0;
     for (int i = 0; i < sizeof(m_RenderTargetImageView); ++i)
     {
         if (m_RenderTargetImageView[i].has_value())
         {
-            renderPassHash ^= hasher(m_RenderTargetImageView[i]->GetVkImage());
+            renderPassHash ^= m_hasher(m_RenderTargetImageView[i]->GetVkImage());
         }
         else
         {
@@ -311,9 +328,9 @@ GfxPipeline& GfxPipelineStateManager::GetPipeline()
     }
 
     uint32_t pipelineHash = 0;
-    pipelineHash ^= hasher((void*)m_vertexShader);
-    pipelineHash ^= hasher((void*)m_pixelShader);
-    pipelineHash ^= hasher((void*)m_computeShader);
+    pipelineHash ^= m_hasher((void*)m_vertexShader);
+    pipelineHash ^= m_hasher((void*)m_pixelShader);
+    pipelineHash ^= m_hasher((void*)m_computeShader);
 
     uint32_t hash = pipelineHash + renderPassHash;
 
@@ -328,13 +345,12 @@ GfxPipeline& GfxPipelineStateManager::GetPipeline()
 GfxRenderState GfxPipelineStateManager::GetRenderState()
 {
     // TODO: hash render passes
-    std::hash<void*> hasher;
     uint32_t renderPassHash = 0;
     for (int i = 0; i < sizeof(m_RenderTargetImageView); ++i)
     {
         if (m_RenderTargetImageView[i].has_value())
         {
-            renderPassHash ^= hasher(m_RenderTargetImageView[i]->GetVkImage());
+            renderPassHash ^= m_hasher(m_RenderTargetImageView[i]->GetVkImage());
         }
         else
         {
