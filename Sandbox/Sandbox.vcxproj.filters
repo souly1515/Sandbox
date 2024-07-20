@@ -76,11 +76,14 @@
     <ClCompile Include="Graphics\GraphicCore\GfxDescriptorPool.cpp">
       <Filter>Engine\Graphics\GraphicsCore</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\GraphicCore\GfxStructuredBuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GraphicCore\GfxObjectManager.cpp">
       <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GraphicCore\GfxStructuredBuffer.cpp">
+      <Filter>Engine\Graphics\GraphicsCore</Filter>
+    </ClCompile>
+    <ClCompile Include="..\tracy\public\TracyClient.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

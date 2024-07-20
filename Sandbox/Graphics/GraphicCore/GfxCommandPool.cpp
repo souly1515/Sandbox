@@ -56,6 +56,15 @@ void GfxCommandPool::SubmitCompute()
     m_commandBufferAllocators[m_currentFrame].SubmitCompute();
 }
 
+GfxCommandBuffer GfxCommandPool::GetUntrackedCommandBuffer()
+{
+    if (m_commandBufferAllocators.size() == 0)
+    {
+        SetCurrentFrame(0);
+    }
+    return m_commandBufferAllocators[0].GetUntrackedCommandBuffer(m_graphicsCommandPool);
+}
+
 GfxCommandBuffer GfxCommandPool::GetGraphicsCommandBuffer()
 {
     return m_commandBufferAllocators[m_currentFrame].GetGraphicsCommandBuffer(m_graphicsCommandPool);
@@ -63,6 +72,11 @@ GfxCommandBuffer GfxCommandPool::GetGraphicsCommandBuffer()
 GfxCommandBuffer GfxCommandPool::GetComputeCommandBuffer()
 {
     return m_commandBufferAllocators[m_currentFrame].GetGraphicsCommandBuffer(m_computeCommandPool);
+}
+
+void GfxCommandPool::ReleaseUntrackedCommandBuffer(GfxCommandBuffer commandBuffer)
+{
+    vkFreeCommandBuffers(*m_device, m_graphicsCommandPool, 1, &commandBuffer.GetVkCommandBuffer());
 }
 
 GfxCommandBuffer::GfxCommandBuffer(VkCommandBuffer commandBuffer) :
@@ -134,6 +148,20 @@ GfxCommandBuffer GfxCommandPool::GfxCommandBufferAllocator::GetComputeCommandBuf
     m_computeCommandBuffers.emplace_back(commandBuffer);
     m_computeCommandBuffersInUse.emplace_back(commandBuffer);
     ++m_usedCompute;
+
+    return GfxCommandBuffer(commandBuffer);
+}
+
+GfxCommandBuffer GfxCommandPool::GfxCommandBufferAllocator::GetUntrackedCommandBuffer(VkCommandPool pool)
+{
+    VkCommandBuffer commandBuffer;
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = pool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    API_CALL(vkAllocateCommandBuffers, *m_device, &allocInfo, &commandBuffer);
 
     return GfxCommandBuffer(commandBuffer);
 }

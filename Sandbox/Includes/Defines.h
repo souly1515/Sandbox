@@ -4,6 +4,9 @@
 #include <cstdio>
 #include <stdint.h>
 #include <Windows.h>
+#include <tracy/public/tracy/Tracy.hpp>
+#include <vulkan/vulkan.h>
+#include <tracy/public/tracy/TracyVulkan.hpp>
 
 #define DefaultSingleton(ClassName) \
 private:\
@@ -66,7 +69,6 @@ void Log(const char* t, uint32_t logLevel, [[maybe_unused]] Args... args)
 #define DEBUG_ONLY(expression)\
 (void)(0);
 #else
-#define DEBUG
 #define DEBUG_ONLY(expression)\
 expression
 #endif
@@ -76,3 +78,26 @@ void DebugLog(const char* t, Args... args)
 {
     Log(t, Debug, args...);
 }
+
+#ifdef PROFILE
+#define DefineProfileMarker(Name) const char* Name##_ProfileMarker = #Name;
+
+#define DeclareProfileMarker(Name) extern const char* Name##_ProfileMarker;
+
+#define CPU_ProfileZone(ProfileTag) ZoneScopedN(#ProfileTag);
+#define CPU_ProfileZone_Color(ProfileTag, Color) ZoneScopedNC(#ProfileTag, Color);
+
+#define GPU_ProfileZone(ProfileTag) TracyVkZone(GraphicEngine::GetInstance().GetProfileContext(), GraphicEngine::GetInstance().GetCurrentCommandBuffer(), #ProfileTag);
+#define GPU_ProfileZone_Color(ProfileTag, Color) TracyVkZoneC(GraphicEngine::GetInstance().GetProfileContext(), GraphicEngine::GetInstance().GetCurrentCommandBuffer(), #ProfileTag, Color);
+
+void* operator new(std::size_t count);
+void operator delete(void* ptr) noexcept;
+
+#else
+#define DefineProfileMarker(Name)
+#define DeclareProfileMarker(Name)
+#define CPU_ProfileZone(ProfileTag)
+#define CPU_ProfileZone_Color(ProfileTag, Color)
+#define GPU_ProfileZone(ProfileTag)
+#define GPU_ProfileZone_Color(ProfileTag, Color)
+#endif

@@ -10,9 +10,14 @@ class GfxCommandBuffer
     VkCommandBuffer m_commandBuffer;
     bool m_open = false;
 public:
-    GfxCommandBuffer(VkCommandBuffer commandBuffer);
+    GfxCommandBuffer(VkCommandBuffer commandBuffer = VK_NULL_HANDLE);
 
     operator VkCommandBuffer() const
+    {
+        return m_commandBuffer;
+    }
+
+    VkCommandBuffer& GetVkCommandBuffer()
     {
         return m_commandBuffer;
     }
@@ -50,6 +55,8 @@ class GfxCommandPool
         GfxCommandBuffer GetGraphicsCommandBuffer(VkCommandPool pool);
         GfxCommandBuffer GetComputeCommandBuffer(VkCommandPool pool);
 
+        GfxCommandBuffer GetUntrackedCommandBuffer(VkCommandPool pool);
+
         const std::vector<VkCommandBuffer>& GetInUseGraphicsCommandBuffers() const { return m_graphicsCommandBuffersInUse; };
         const std::vector<VkCommandBuffer>& GetInUseComputeCommandBuffers() const { return m_computeCommandBuffersInUse; };
 
@@ -83,6 +90,10 @@ public:
     const std::vector<VkCommandBuffer>& GetCurrentComputeCommandBuffers() const { return m_commandBufferAllocators[m_currentFrame].GetInUseComputeCommandBuffers(); };
 
 
+    GfxCommandBuffer GetUntrackedCommandBuffer();
     GfxCommandBuffer GetGraphicsCommandBuffer();
     GfxCommandBuffer GetComputeCommandBuffer();
+
+
+    void ReleaseUntrackedCommandBuffer(GfxCommandBuffer commandBuffer);
 };

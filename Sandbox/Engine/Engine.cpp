@@ -19,8 +19,12 @@
 
 #include <iostream>
 #include <chrono>
+#include <tracy/public/common/TracySystem.hpp>
 
 DeclareIV(RT0);
+
+//DefineProfileMarker(SingleDraw)
+const char* SingleDraw_ProfileMarker = "SingleDraw";
 
 struct UniformBufferObject {
     glm::mat4 view;
@@ -132,42 +136,49 @@ int Engine::MainLoop()
         pm.HandleIO();
 
         ge.StartFrame();
-
-        UpdateMatrices(uboTest[ge.GetCurrentFrame()], objectHandle);
-        om.UpdateBuffers(ge.GetCurrentFrame());
+        {
+            CPU_ProfileZone(BufferUpdate);
+            UpdateMatrices(uboTest[ge.GetCurrentFrame()], objectHandle);
+            om.UpdateBuffers(ge.GetCurrentFrame());
+        }
 
         ge.BeginRecordingGraphics();
+        {
+            CPU_ProfileZone(Recording_Command_Buffer);
+            GPU_ProfileZone(SingleDraw);
 
+            psm.SetRenderTarget(0, ge.GetDevice().GetSwapChain().GetCurrentImageView());
+            ge.BeginRenderPass();
 
-        psm.SetRenderTarget(0, ge.GetDevice().GetSwapChain().GetCurrentImageView());
-        ge.BeginRenderPass();
+            psm.SetShader(GfxShaderManager::GetShader(VS_BasicShader::Hash));
+            psm.SetShader(GfxShaderManager::GetShader(PS_BasicShader::Hash));
 
-        psm.SetShader(GfxShaderManager::GetShader(VS_BasicShader::Hash));
-        psm.SetShader(GfxShaderManager::GetShader(PS_BasicShader::Hash));
+            // TODO BLOCK - below should be encompassed into the draw func
+            psm.BindDescriptor(uboTest[ge.GetCurrentFrame()]);
+            psm.BindStructuredBuffer(om.GetBuffer());
+            ge.CommitStates();
 
-        // TODO BLOCK - below should be encompassed into the draw func
-        psm.BindDescriptor(uboTest[ge.GetCurrentFrame()]);
-        psm.BindStructuredBuffer(om.GetBuffer());
-        ge.CommitStates();
+            // move the following into pipeline state manager as well
+            VkBuffer vertexBuffers[] = { vertexBuffer };
+            VkDeviceSize offsets[] = { 0 };
+            vkCmdBindVertexBuffers(ge.GetCurrentCommandBuffer(), 0, 1, vertexBuffers, offsets);
+            vkCmdBindIndexBuffer(ge.GetCurrentCommandBuffer(), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
-        // move the following into pipeline state manager as well
-        VkBuffer vertexBuffers[] = { vertexBuffer };
-        VkDeviceSize offsets[] = { 0 };
-        vkCmdBindVertexBuffers(ge.GetCurrentCommandBuffer(), 0, 1, vertexBuffers, offsets);
-        vkCmdBindIndexBuffer(ge.GetCurrentCommandBuffer(), indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+            vkCmdDrawIndexed(ge.GetCurrentCommandBuffer(), static_cast<uint32_t>(indices.size()), 2, 0, 0, 0);
 
-        vkCmdDrawIndexed(ge.GetCurrentCommandBuffer(), static_cast<uint32_t>(indices.size()), 2, 0, 0, 0);
+            //TODO END
 
-        //TODO END
-
-        ge.EndRenderPass();
-
+            ge.EndRenderPass();
+        }
+        TracyVkCollect(ge.GetProfileContext(), ge.GetCurrentCommandBuffer());
         ge.EndRecording();
 
         ge.SubmitWithSync();
         ge.Flip();
 
         GfxResourceManager::CleanUpFrame();
+
+        FrameMark;
     }
     vkDeviceWaitIdle(ge.GetDevice());
 
@@ -203,6 +214,7 @@ void Engine::Init()
     // probably add all additional layers and extensions here
 
     GraphicEngine::GetInstance().Init();
+    tracy::SetThreadName("MainThread");
 }
 
 void Engine::CleanUp()

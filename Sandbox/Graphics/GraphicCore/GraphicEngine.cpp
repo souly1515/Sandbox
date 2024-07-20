@@ -7,6 +7,39 @@
 
 #include <vector>
 
+uint32_t thread_local GraphicEngine::ms_thread_id = 0;
+
+void* operator new(std::size_t count)
+{
+    auto ptr = malloc(count);
+    TracyAlloc(ptr, count);
+    return ptr;
+}
+
+void operator delete(void* ptr) noexcept
+{
+    TracyFree(ptr);
+    free(ptr);
+}
+
+
+GraphicEngine::GraphicEngine() :
+    m_requiredVulkanExtensions{},
+    m_requiredLayers{},
+    m_optionalVulkanExtensions{},
+    m_optionalLayers{},
+    m_requiredDeviceExtensions{
+       VK_KHR_SWAPCHAIN_EXTENSION_NAME
+    },
+    m_optionalDeviceExtensions{},
+    m_currentCommmandBuffer{ }
+{
+#ifdef DEBUG
+    m_requiredLayers.push_back("VK_LAYER_KHRONOS_validation");
+    m_requiredVulkanExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+#endif
+}
+
 #ifndef NDEBUG
 // probably offload this to some sort of extension manager at some point
 VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
@@ -24,28 +57,6 @@ void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT
     if (func != nullptr) {
         func(instance, debugMessenger, pAllocator);
     }
-}
-
-GraphicEngine::GraphicEngine() :
-    m_requiredVulkanExtensions{
-},
-m_requiredLayers{
-},
-m_optionalVulkanExtensions{
-},
-m_optionalLayers{
-},
-m_requiredDeviceExtensions{
-   VK_KHR_SWAPCHAIN_EXTENSION_NAME
-},
-m_optionalDeviceExtensions{
-},
-m_currentCommmandBuffer{VK_NULL_HANDLE}
-{
-#ifdef DEBUG
-    m_requiredLayers.push_back("VK_LAYER_KHRONOS_validation");
-    m_requiredVulkanExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-#endif
 }
 
 VKAPI_ATTR VkBool32 VKAPI_CALL GraphicEngine::debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData)
@@ -194,6 +205,7 @@ bool GraphicEngine::IsExtensionSupported(const char* extensionName)
 
 void GraphicEngine::AddLayer(const char* layerName, bool required)
 {
+    UNUSED_PARAM(required);
     if (IsLayerSupported(layerName))
         m_EnabledLayers.push_back(layerName);
     else
@@ -205,6 +217,7 @@ void GraphicEngine::AddLayer(const char* layerName, bool required)
 
 void GraphicEngine::AddExtension(const char* extensionName, bool required)
 {
+    UNUSED_PARAM(required);
     if (IsExtensionSupported(extensionName))
         m_EnabledExtensions.push_back(extensionName);
     else
@@ -290,7 +303,13 @@ void GraphicEngine::Init()
     m_objectManager = GfxObjectManager::GetInstancePtr();
     m_objectManager->Init(m_device, MAX_FRAMES_IN_FLIGHT);
 
+
     InitSyncObjects();
+
+#ifdef PROFILE
+    m_profileCommandBuffer = m_commandPool.GetUntrackedCommandBuffer();
+    m_tracyContext = TracyVkContext(m_device, m_device, m_device.GetGraphicsQueue(), m_profileCommandBuffer);
+#endif
 }
 
 void GraphicEngine::BeginRenderPass()
@@ -315,18 +334,18 @@ void GraphicEngine::BeginRenderPass()
     renderPassInfo.pClearValues = clearColor;
     renderPassInfo.clearValueCount = i;
 
-    API_CALL(vkCmdBeginRenderPass, m_currentCommmandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+    API_CALL(vkCmdBeginRenderPass, m_currentCommmandBuffer[ms_thread_id], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 }
 
 void GraphicEngine::EndRenderPass()
 {
-    API_CALL(vkCmdEndRenderPass, m_currentCommmandBuffer);
+    API_CALL(vkCmdEndRenderPass, m_currentCommmandBuffer[ms_thread_id]);
 }
 
 void GraphicEngine::CommitStates()
 {
-    m_cachedPipelineManager->CommitStates(m_currentCommmandBuffer);
+    m_cachedPipelineManager->CommitStates(m_currentCommmandBuffer[ms_thread_id]);
 
     VkExtent2D swapChainExtent = m_device.GetSwapChain().GetVkExtent();
     VkViewport viewport{};
@@ -336,12 +355,12 @@ void GraphicEngine::CommitStates()
     viewport.height = static_cast<float>(swapChainExtent.height);
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport(m_currentCommmandBuffer, 0, 1, &viewport);
+    vkCmdSetViewport(m_currentCommmandBuffer[ms_thread_id], 0, 1, &viewport);
 
     VkRect2D scissor{};
     scissor.offset = { 0, 0 };
     scissor.extent = swapChainExtent;
-    vkCmdSetScissor(m_currentCommmandBuffer, 0, 1, &scissor);
+    vkCmdSetScissor(m_currentCommmandBuffer[ms_thread_id], 0, 1, &scissor);
 }
 
 void GraphicEngine::BeginOutOfFrameRecording()
@@ -357,32 +376,33 @@ void GraphicEngine::EndOutOfFrameRecording()
 void GraphicEngine::BeginRecordingGraphics()
 {
     // expected to close existing command list before recording 
-    assert(!m_currentCommmandBuffer);
-    assert(!m_currentCommmandBuffer.IsOpen());
+    assert(!m_currentCommmandBuffer[ms_thread_id]);
+    assert(!m_currentCommmandBuffer[ms_thread_id].IsOpen());
 
-    m_currentCommmandBuffer = m_commandPool.GetGraphicsCommandBuffer();
+    m_currentCommmandBuffer[ms_thread_id] = m_commandPool.GetGraphicsCommandBuffer();
 
-    m_currentCommmandBuffer.StartRecording();
+    m_currentCommmandBuffer[ms_thread_id].StartRecording();
 }
 
 void GraphicEngine::BeginRecordingCompute()
 {
     // expected to close existing command list before recording 
-    assert(!m_currentCommmandBuffer);
-    assert(m_currentCommmandBuffer.IsOpen());
+    assert(!m_currentCommmandBuffer[ms_thread_id]);
+    assert(m_currentCommmandBuffer[ms_thread_id].IsOpen());
 
-    m_currentCommmandBuffer = m_commandPool.GetComputeCommandBuffer();
+    m_currentCommmandBuffer[ms_thread_id] = m_commandPool.GetComputeCommandBuffer();
 
-    m_currentCommmandBuffer.StartRecording();
+    m_currentCommmandBuffer[ms_thread_id].StartRecording();
 }
 
 void GraphicEngine::EndRecording()
 {
-    m_currentCommmandBuffer.EndRecording();
+    m_currentCommmandBuffer[ms_thread_id].EndRecording();
 }
 
 void GraphicEngine::StartFrame()
 {
+    CPU_ProfileZone(StartFrame);
     uint32_t imageIndex = 0;
 
     m_currentFrameIndex = (m_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -413,6 +433,7 @@ void GraphicEngine::Submit()
 
 void GraphicEngine::SubmitWithSync()
 {
+    CPU_ProfileZone(Submit)
     const auto& commandBuffers = m_commandPool.GetCurrentGraphicsCommandBuffers();
     if (commandBuffers.size())
     {
@@ -440,6 +461,7 @@ void GraphicEngine::SubmitWithSync()
 
 void GraphicEngine::Flip()
 {
+    CPU_ProfileZone(Flip)
     VkSemaphore signalSemaphores[] = { renderFinishedSemaphore[m_currentFrameIndex] };
 
     VkPresentInfoKHR presentInfo{};
@@ -467,13 +489,31 @@ uint32_t GraphicEngine::GetCurrentFrame()
 const GfxCommandBuffer& GraphicEngine::GetCurrentCommandBuffer()
 {
     assert(m_currentCommmandBuffer);
-    return m_currentCommmandBuffer;
+    return m_currentCommmandBuffer[ms_thread_id];
 }
+
+#ifdef PROFILE
+GfxCommandBuffer& GraphicEngine::GetProfileCommandBuffer()
+{
+    return m_profileCommandBuffer;
+}
+
+tracy::VkCtx* GraphicEngine::GetProfileContext()
+{
+    return m_tracyContext;
+}
+#endif
 
 void GraphicEngine::Cleanup()
 {
     vkDeviceWaitIdle(m_device);
     CleanupSyncObjects();
+
+#ifdef PROFILE
+    m_commandPool.ReleaseUntrackedCommandBuffer(m_profileCommandBuffer.GetVkCommandBuffer());
+    TracyVkDestroy(m_tracyContext);
+#endif
+
     m_objectManager->CleanUp();
     GfxDescriptorPool::GetInstance().CleanUp();
     m_commandPool.CleanUp();

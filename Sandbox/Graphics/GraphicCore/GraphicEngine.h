@@ -9,6 +9,10 @@
 #include "GfxObjectManager.h"
 
 #include <vector>
+#ifdef PROFILE
+#include <tracy/public/tracy/Tracy.hpp>
+#include <tracy/public/tracy/TracyVulkan.hpp>
+#endif
 
 class GraphicEngine
 {
@@ -22,7 +26,7 @@ private:
     GraphicEngine();
     VkInstance m_vkInstance = VK_NULL_HANDLE;
 
-
+    static const uint32_t c_maxThreads = 8;
 #ifndef NDEBUG
 
     VkDebugUtilsMessengerEXT m_debugMessenger = VK_NULL_HANDLE;
@@ -55,7 +59,14 @@ private:
 
     GfxCommandPool m_commandPool;
 
-    GfxCommandBuffer m_currentCommmandBuffer;
+#ifdef PROFILE
+    tracy::VkCtx* m_tracyContext;
+    GfxCommandBuffer m_profileCommandBuffer;
+#endif
+
+    thread_local static uint32_t ms_thread_id;
+
+    GfxCommandBuffer m_currentCommmandBuffer[c_maxThreads];
 
     GfxPipelineStateManager* m_cachedPipelineManager;
     GfxObjectManager* m_objectManager;
@@ -100,4 +111,8 @@ public:
     uint32_t GetCurrentFrame();
 
     const GfxCommandBuffer& GetCurrentCommandBuffer();
+#ifdef PROFILE
+    GfxCommandBuffer& GetProfileCommandBuffer();
+    tracy::VkCtx* GetProfileContext();
+#endif
 };
